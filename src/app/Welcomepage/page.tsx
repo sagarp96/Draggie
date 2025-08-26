@@ -1,10 +1,10 @@
 "use client";
-import Mainboard from "@/components/board/Mainboard";
+import MainboardV2 from "@/components/BoardV2";
 export default function WelcomePage() {
   return (
     <>
-      <h1 className="text-center text-3xl mb-10">Dragie</h1>
-      <Mainboard />
+      <h1 className="text-center text-3xl mb-10">Draggie</h1>
+      <MainboardV2 />
     </>
   );
 }
