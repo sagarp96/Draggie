@@ -1,7 +1,7 @@
 import { Column as ColumnType, Task } from "./types";
 import { useDroppable } from "@dnd-kit/core";
 import { TaskCard } from "./tasks";
-
+import { AddNewTaskBTN } from "./AddNewTaskBTN";
 type ColumnProps = {
   column: ColumnType;
   tasks: Task[];
@@ -31,6 +31,9 @@ export function Column({ column, tasks }: ColumnProps) {
           })
         )}
       </div>
+      <footer className="flex justify-center bg-white w-full text-center text-black rounded-full">
+        <AddNewTaskBTN />
+      </footer>
     </div>
   );
 }
