@@ -13,8 +13,8 @@ export function Column({ column, tasks }: ColumnProps) {
   });
 
   return (
-    <div className="flex w-80 flex-col rounded-lg bg-neutral-800 p-4">
-      <h2 className="mb-4 font-semibold text-neutral-100 h-ful">
+    <div className="flex w-80 flex-col rounded-lg bg-neutral-800 p-4 ">
+      <h2 className="mb-4 font-semibold text-neutral-100 h-ful text-center">
         {column.title}
       </h2>
       <div
