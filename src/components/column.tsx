@@ -32,7 +32,7 @@ export function Column({ column, tasks }: ColumnProps) {
         )}
       </div>
       <footer className="flex justify-center bg-white w-full text-center text-black rounded-full">
-        <AddNewTaskBTN />
+        <AddNewTaskBTN /> Add new Task
       </footer>
     </div>
   );
