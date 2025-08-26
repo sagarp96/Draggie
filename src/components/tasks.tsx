@@ -38,7 +38,7 @@ export function TaskCard({ task }: TaskCardProps) {
       </footer>
       <div className="flex justify-center ">
         <Button variant="ghost">
-          <Trash2 className="mr-2 h-4 w-4 text-red-500" />
+          <Trash2 className="mr-2 h-4 w-4 " />
         </Button>
         <EditTaskBTN />
       </div>
