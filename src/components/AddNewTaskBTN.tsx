@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DatePicker } from "./ui/DatePicker";
 import { SelectDropdown } from "./SelectDropdown";
+import { motion } from "framer-motion";
 
 function addnewTask() {}
 
@@ -37,9 +38,11 @@ export function AddNewTaskBTN() {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="transparent">
-            <Plus className="mr-2 h-4 w-4" /> Add New Task
-          </Button>
+          <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+            <Button variant="transparent" className="w-full">
+              <Plus className="mr-2 h-4 w-4" /> Add New Task
+            </Button>
+          </motion.button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -57,7 +60,9 @@ export function AddNewTaskBTN() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="transparent">Add New Task</Button>
+        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+          <Button variant="transparent">Add New Task</Button>
+        </motion.button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">
