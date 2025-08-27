@@ -16,7 +16,7 @@ const COLUMN: ColumnType[] = [
   { id: "DONE", title: "Done" },
 ];
 
-const Initia_TASK: Task[] = [
+const Initial_TASK: Task[] = [
   {
     id: "1",
     title: "Research",
@@ -38,7 +38,7 @@ const Initia_TASK: Task[] = [
 ];
 
 export default function MainboardV2() {
-  const [tasks, setTasks] = useState<Task[]>(Initia_TASK);
+  const [tasks, setTasks] = useState<Task[]>(Initial_TASK);
 
   // Configure sensors for better touch support
   const mouseSensor = useSensor(MouseSensor, {

@@ -35,7 +35,10 @@ export function EditTaskBTN() {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="ghost">
+          <Button
+            variant="ghost"
+            className="hover:bg-transparent hover:text-green-600"
+          >
             <Pencil className="mr-2 h-4 w-4" />
           </Button>
         </DialogTrigger>

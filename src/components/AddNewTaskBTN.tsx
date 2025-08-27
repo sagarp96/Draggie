@@ -26,6 +26,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DatePicker } from "./ui/DatePicker";
 import { SelectDropdown } from "./SelectDropdown";
+
+function addnewTask() {}
+
 export function AddNewTaskBTN() {
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -34,7 +37,7 @@ export function AddNewTaskBTN() {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="ghost">
+          <Button variant="transparent">
             <Plus className="mr-2 h-4 w-4" /> Add New Task
           </Button>
         </DialogTrigger>
@@ -54,11 +57,11 @@ export function AddNewTaskBTN() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline">Edit Your Task</Button>
+        <Button variant="transparent">Add New Task</Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">
-          <DrawerTitle>Edit Your Task</DrawerTitle>
+          <DrawerTitle>Add New Task</DrawerTitle>
           <DrawerDescription>
             Make changes to your Task here. Click save when you&apos;re done.
           </DrawerDescription>
@@ -66,7 +69,7 @@ export function AddNewTaskBTN() {
         <ProfileForm className="px-4" />
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="transparent">Cancel</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
