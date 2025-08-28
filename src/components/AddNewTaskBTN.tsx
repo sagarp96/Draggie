@@ -27,8 +27,9 @@ import { Label } from "@/components/ui/label";
 import { DatePicker } from "./ui/DatePicker";
 import { SelectDropdown } from "./SelectDropdown";
 import { motion } from "framer-motion";
+import { AddnewTask } from "@/hooks/query";
 
-function addnewTask() {}
+function NewtasktoDB() {}
 
 export function AddNewTaskBTN() {
   const [open, setOpen] = React.useState(false);
@@ -38,11 +39,9 @@ export function AddNewTaskBTN() {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-            <Button variant="transparent" className="w-full">
-              <Plus className="mr-2 h-4 w-4" /> Add New Task
-            </Button>
-          </motion.button>
+          <Button variant="transparent" className="w-full">
+            <Plus className="mr-2 h-4 w-4" /> Add New Task
+          </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -60,9 +59,7 @@ export function AddNewTaskBTN() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-          <Button variant="transparent">Add New Task</Button>
-        </motion.button>
+        <Button variant="transparent">Add New Task</Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">

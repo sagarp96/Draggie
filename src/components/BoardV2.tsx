@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Task, Column as ColumnType } from "./types";
 import { Column } from "./column";
 import {
@@ -9,13 +9,15 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-
+// import { getTaskCards } from "@/hooks/query";
+import { useUserAuth } from "@/hooks/useAuth";
 const COLUMN: ColumnType[] = [
   { id: "TODO", title: "To Do" },
   { id: "IN_PROGRESS", title: "In-Progress" },
   { id: "DONE", title: "Done" },
 ];
 
+import { initialStore } from "@/hooks/store";
 const Initial_TASK: Task[] = [
   {
     id: "1",
@@ -38,7 +40,10 @@ const Initial_TASK: Task[] = [
 ];
 
 export default function MainboardV2() {
+  const setInitialTasks = initialStore((state) => state.setInitialTasks);
   const [tasks, setTasks] = useState<Task[]>(Initial_TASK);
+  const { data: authData } = useUserAuth();
+  // const taskQuery = getTaskCards();
 
   // Configure sensors for better touch support
   const mouseSensor = useSensor(MouseSensor, {
@@ -74,7 +79,6 @@ export default function MainboardV2() {
           : task
       )
     );
-
     console.log("Task moved to:", newStatus);
     console.log(tasks);
   }
