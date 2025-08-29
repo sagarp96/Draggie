@@ -1,15 +1,13 @@
 import { Column as ColumnType, Task } from "./types";
 import { useDroppable } from "@dnd-kit/core";
 import { TaskCard } from "./tasks";
-import { AddNewTaskBTN } from "./AddNewTaskBTN";
-import { useState } from "react";
+import { AddNewTaskBTNV2 } from "./AddnewTaskBTN_V2";
 
 type ColumnProps = {
   column: ColumnType;
   tasks: Task[];
 };
 export function Column({ column, tasks }: ColumnProps) {
-  const [open, setOpen] = useState(false);
   const { setNodeRef } = useDroppable({
     id: column.id,
   });
@@ -37,7 +35,7 @@ export function Column({ column, tasks }: ColumnProps) {
           )}
         </div>
         <footer className="flex justify-center bg-white w-full text-center text-black rounded-full">
-          <AddNewTaskBTN />
+          <AddNewTaskBTNV2 columnid={column.id} />
         </footer>
       </div>
     </>

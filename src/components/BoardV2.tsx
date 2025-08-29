@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import type { Task, Column as ColumnType } from "./types";
 import { Column } from "./column";
 import {
@@ -9,43 +9,25 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-// import { getTaskCards } from "@/hooks/query";
-import { useUserAuth } from "@/hooks/useAuth";
+import { useUpdateTaskStatus } from "@/hooks/Mutate";
+import { useTaskCards } from "@/hooks/query";
 const COLUMN: ColumnType[] = [
   { id: "TODO", title: "To Do" },
   { id: "IN_PROGRESS", title: "In-Progress" },
   { id: "DONE", title: "Done" },
 ];
-
-import { initialStore } from "@/hooks/store";
-const Initial_TASK: Task[] = [
-  {
-    id: "1",
-    title: "Research",
-    status: "TODO",
-    description: "maths paper research",
-  },
-  {
-    id: "2",
-    title: "Design",
-    status: "IN_PROGRESS",
-    description: "maths paper design",
-  },
-  {
-    id: "3",
-    title: "Development",
-    status: "DONE",
-    description: "maths paper development",
-  },
-];
-
+import { useTaskStore } from "@/hooks/store";
 export default function MainboardV2() {
-  const setInitialTasks = initialStore((state) => state.setInitialTasks);
-  const [tasks, setTasks] = useState<Task[]>(Initial_TASK);
-  const { data: authData } = useUserAuth();
-  // const taskQuery = getTaskCards();
+  const { data: taskData } = useTaskCards();
+  const { tasks, setTasks } = useTaskStore();
+  const updateTaskStatus = useUpdateTaskStatus();
 
-  // Configure sensors for better touch support
+  useEffect(() => {
+    if (taskData) {
+      setTasks(taskData);
+    }
+  }, [taskData, setTasks]);
+  // console.log(tasks);
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 10,
@@ -69,18 +51,14 @@ export default function MainboardV2() {
     const taskId = active.id as string;
     const newStatus = over.id as Task["status"];
 
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId
-          ? {
-              ...task,
-              status: newStatus,
-            }
-          : task
-      )
+    const updatedTasks = tasks.map((task) =>
+      task.id === taskId ? { ...task, status: newStatus } : task
     );
+    setTasks(updatedTasks);
+    updateTaskStatus.mutate({ taskId, status: newStatus });
+    console.log(taskId);
     console.log("Task moved to:", newStatus);
-    console.log(tasks);
+    console.log(updatedTasks);
   }
 
   return (

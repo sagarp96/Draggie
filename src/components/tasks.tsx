@@ -32,13 +32,13 @@ export function TaskCard({ task }: TaskCardProps) {
         transition={{ duration: 0.3 }}
       >
         <h3 className="text-lg text-neutral-50 text-center mb-5">
-          {task.title}
+          {task.name}
         </h3>
         <footer className="text-center">
-          <p className="text-xs text-neutral-300 dark:text-neutral-300">
+          <p className="text-xs text-neutral-100 dark:text-neutral-300">
             Created by:Sagar panwar
           </p>
-          <p className="text-xs text-neutral-300 dark:text-neutral-300">
+          <p className="text-xs text-neutral-100 dark:text-neutral-300">
             Last Updated:10 hours ago
           </p>
         </footer>
@@ -69,11 +69,21 @@ export function TaskCard({ task }: TaskCardProps) {
         exit={{ rotateY: 180 }}
         transition={{ duration: 0.5 }}
       >
-        <h2 className="text-lg text-neutral-50 text-center mb-5">
-          {task.title}
-        </h2>
-        <p className="text-center">{task.description}</p>
-
+        <div className="flex flex-col justify-center">
+          <p className="text-lg text-neutral-50 text-center ">{task.name}</p>
+          <p className="text-xs text-neutral-100 dark:text-neutral-300">
+            Description:
+            <span className="text-neutral-50">{task.description}</span>
+          </p>
+          <p className="text-xs text-neutral-100 dark:text-neutral-300">
+            Time:
+            <span className="text-neutral-50">{task.time}</span>
+          </p>
+          <p className="text-xs text-neutral-100 dark:text-neutral-300">
+            Tags:
+            <span className="text-neutral-50">{task.tags}</span>
+          </p>
+        </div>
         <div className="flex justify-center">
           <Button
             variant="ghost"

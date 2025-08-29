@@ -1,16 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 
 export function useUserAuth() {
   async function getUserSession() {
-    const { data, error } = await createClient().auth.getSession();
-    if (error) {
-      console.log(error.message);
+    try {
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error("Supabase auth error:", error.message);
+        return null;
+      }
+
+      return data.session?.user ?? null;
+    } catch (err) {
+      console.error("Error getting session:", err);
+      return null;
     }
-    const user = data?.session?.user;
-    console.log(data, "data");
-    console.log(user, "user");
-    return { data, user };
   }
 
   return useQuery({
