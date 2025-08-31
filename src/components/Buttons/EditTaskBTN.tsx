@@ -1,11 +1,10 @@
 "use client";
-import { Plus } from "lucide-react";
+import { Pencil } from "lucide-react";
 import * as React from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { v4 as uuid } from "uuid";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
@@ -16,7 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Task } from "./types";
+
 import {
   Select,
   SelectContent,
@@ -24,7 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAddnewTask } from "@/hooks/Mutate";
+import { EditTask } from "@/hooks/Mutate";
+import { useTaskCardDetails } from "@/hooks/query";
 import { taskTags } from "@/lib/data/tags";
 import {
   Dialog,
@@ -45,7 +45,6 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { useUserDetails } from "@/hooks/query";
 import {
   Form,
   FormControl,
@@ -55,7 +54,19 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-export function AddNewTaskBTNV2({ columnid }: { columnid: string }) {
+
+export function EditTaskBTN({
+  taskID,
+  fetchedTaskdetails,
+}: {
+  taskID: string;
+  fetchedTaskdetails: {
+    name: string;
+    description: string;
+    tags: string;
+    DueDate: Date;
+  };
+}) {
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -63,18 +74,25 @@ export function AddNewTaskBTNV2({ columnid }: { columnid: string }) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="transparent" className="w-full">
-            <Plus className="mr-2 h-4 w-4" /> Add New Task
+          <Button
+            className="w-10 hover:bg-transparent hover:text-black"
+            variant="transparent"
+          >
+            <Pencil />
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Add New Task</DialogTitle>
+            <DialogTitle>Edit Task</DialogTitle>
             <DialogDescription>
               Make changes to your Task here. Click save when you&apos;re done.
             </DialogDescription>
           </DialogHeader>
-          <ProfileForm columnid={columnid} />
+          <ProfileForm
+            setOpen={setOpen}
+            taskID={taskID}
+            fetchedTaskdetails={fetchedTaskdetails}
+          />
         </DialogContent>
       </Dialog>
     );
@@ -83,19 +101,34 @@ export function AddNewTaskBTNV2({ columnid }: { columnid: string }) {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="transparent">Add New Task</Button>
+        <Button
+          className="w-10 hover:bg-transparent hover:text-black"
+          variant="transparent"
+        >
+          <Pencil />
+        </Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">
-          <DrawerTitle>Add New Task</DrawerTitle>
+          <DrawerTitle>Edit Task</DrawerTitle>
           <DrawerDescription>
             Make changes to your Task here. Click save when you&apos;re done.
           </DrawerDescription>
         </DrawerHeader>
-        <ProfileForm className="px-4" columnid={columnid} />
+        <ProfileForm
+          className="px-4"
+          setOpen={setOpen}
+          taskID={taskID}
+          fetchedTaskdetails={fetchedTaskdetails}
+        />
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
-            <Button variant="transparent">Cancel</Button>
+            <Button
+              variant="transparent"
+              className="hover:bg-transparent hover:text-black"
+            >
+              Cancel
+            </Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
@@ -104,11 +137,24 @@ export function AddNewTaskBTNV2({ columnid }: { columnid: string }) {
 }
 
 function ProfileForm({
-  columnid,
-}: React.ComponentProps<"form"> & { columnid: string }) {
-  const [open, setOpen] = React.useState(false);
-  const AddnewTask = useAddnewTask();
-  const { username = "", userID = "" } = useUserDetails() || {};
+  className,
+  setOpen,
+  taskID,
+  fetchedTaskdetails,
+}: React.ComponentProps<"form"> & {
+  className?: string;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  taskID: string;
+  fetchedTaskdetails: {
+    name: string;
+    description: string;
+    tags: string;
+    DueDate: Date;
+  };
+}) {
+  const EditTaskMutation = EditTask();
+
+  const [calenderopen, setCalenderopen] = React.useState(false);
   const formSchema = z.object({
     Name: z.string().min(2, {
       message: "Name must be at least 2 characters.",
@@ -123,64 +169,34 @@ function ProfileForm({
       message: "DueDate must be at least 2 characters.",
     }),
   });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      Name: "",
-      Description: "",
-      Tags: "",
-      DueDate: new Date(),
+      Name: fetchedTaskdetails.name,
+      Description: fetchedTaskdetails.description,
+      Tags: fetchedTaskdetails.tags,
+      DueDate: fetchedTaskdetails.DueDate,
     },
   });
-  const tailwind_colors = [
-    "bg-slate-500",
-    "bg-gray-500",
-    "bg-zinc-500",
-    "bg-neutral-500",
-    "bg-stone-500",
-    "bg-red-500",
-    "bg-orange-500",
-    "bg-amber-500",
-    "bg-yellow-500",
-    "bg-lime-500",
-    "bg-green-500",
-    "bg-emerald-500",
-    "bg-teal-500",
-    "bg-cyan-500",
-    "bg-sky-500",
-    "bg-blue-500",
-    "bg-indigo-500",
-    "bg-violet-500",
-    "bg-purple-500",
-    "bg-fuchsia-500",
-    "bg-pink-500",
-    "bg-rose-500",
-  ];
-  const generaterandomColor = () => {
-    const randomColor =
-      tailwind_colors[Math.floor(Math.random() * tailwind_colors.length)];
-    return randomColor;
-  };
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const task: Task = {
-      id: uuid(),
-      user_id: userID,
+    const task = {
+      id: taskID,
       name: values.Name,
-      status: columnid,
       due_date: values.DueDate,
       description: values.Description,
       tags: values.Tags,
-      created_by: username,
       time: new Date().toISOString(),
-      color: generaterandomColor(),
     };
-    AddnewTask.mutate({ task });
-    console.log(values, "form values");
+    EditTaskMutation.mutate({ task });
+
+    setOpen(false);
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className={className}>
         <FormField
           control={form.control}
           name="Name"
@@ -244,7 +260,7 @@ function ProfileForm({
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Due Date</FormLabel>
-              <Popover open={open} onOpenChange={setOpen}>
+              <Popover open={calenderopen} onOpenChange={setCalenderopen}>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
@@ -269,7 +285,7 @@ function ProfileForm({
                     selected={field.value}
                     onSelect={(date) => {
                       field.onChange(date);
-                      setOpen(false);
+                      setCalenderopen(false);
                     }}
                     disabled={(date) =>
                       date > new Date() || date < new Date("1900-01-01")
@@ -281,7 +297,7 @@ function ProfileForm({
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit">Update</Button>
       </form>
     </Form>
   );

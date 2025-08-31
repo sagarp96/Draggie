@@ -1,11 +1,13 @@
 import { useDraggable } from "@dnd-kit/core";
 import { Task } from "./types";
 import { Trash2, X } from "lucide-react";
-import { EditTaskBTN } from "./EditTaskBTN";
+import { EditTaskBTN } from "./Buttons/EditTaskBTN";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
 import { useState } from "react";
 import { motion } from "motion/react";
+import DeleteTaskBTN from "./Buttons/DeleteTaskBTN";
+import { useTaskCardDetails } from "@/hooks/query";
 type TaskCardProps = {
   task: Task;
 };
@@ -14,6 +16,8 @@ export function TaskCard({ task }: TaskCardProps) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: task.id,
   });
+
+  const { data: taskcardDetails } = useTaskCardDetails(task.id);
 
   const style = transform
     ? {
@@ -43,13 +47,13 @@ export function TaskCard({ task }: TaskCardProps) {
           </p>
         </footer>
         <div className="flex justify-center ">
-          <Button
-            variant="ghost"
-            className="hover:bg-transparent hover:text-red-600"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-          </Button>
-          <EditTaskBTN />
+          <DeleteTaskBTN taskID={task.id} />
+          {taskcardDetails && (
+            <EditTaskBTN
+              taskID={task.id}
+              fetchedTaskdetails={taskcardDetails}
+            />
+          )}{" "}
           <Button
             variant="ghost"
             className="hover:bg-transparent hover:text-blue-600"

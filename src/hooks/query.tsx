@@ -25,3 +25,19 @@ export function useTaskCards() {
     },
   });
 }
+
+export function useTaskCardDetails(taskID: string) {
+  return useQuery({
+    queryKey: ["TaskCard", taskID],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("taskcard_v2")
+        .select("id,name, description, tags, DueDate, time")
+        .eq("id", taskID);
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data[0];
+    },
+  });
+}

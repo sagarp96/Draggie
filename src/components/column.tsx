@@ -1,7 +1,7 @@
 import { Column as ColumnType, Task } from "./types";
 import { useDroppable } from "@dnd-kit/core";
 import { TaskCard } from "./tasks";
-import { AddNewTaskBTNV2 } from "./AddnewTaskBTN_V2";
+import { AddNewTaskBTNV2 } from "./Buttons/AddnewTaskBTN_V2";
 
 type ColumnProps = {
   column: ColumnType;

@@ -10,6 +10,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { useUpdateTaskStatus } from "@/hooks/Mutate";
+// import { useTaskCardDetails } from "@/hooks/query";
 import { useTaskCards } from "@/hooks/query";
 const COLUMN: ColumnType[] = [
   { id: "TODO", title: "To Do" },
@@ -21,13 +22,11 @@ export default function MainboardV2() {
   const { data: taskData } = useTaskCards();
   const { tasks, setTasks } = useTaskStore();
   const updateTaskStatus = useUpdateTaskStatus();
-
   useEffect(() => {
     if (taskData) {
       setTasks(taskData);
     }
   }, [taskData, setTasks]);
-  // console.log(tasks);
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 10,

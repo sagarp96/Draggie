@@ -1,10 +1,11 @@
 "use client";
-import { Pencil } from "lucide-react";
+import { Plus } from "lucide-react";
 import * as React from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { v4 as uuid } from "uuid";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
@@ -15,7 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
+import { Task } from "../types";
 import {
   Select,
   SelectContent,
@@ -23,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { useAddnewTask } from "@/hooks/Mutate";
 import { taskTags } from "@/lib/data/tags";
 import {
   Dialog,
@@ -44,6 +45,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
+import { useUserDetails } from "@/hooks/query";
 import {
   Form,
   FormControl,
@@ -53,8 +55,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-export function EditTaskBTN() {
+export function AddNewTaskBTNV2({ columnid }: { columnid: string }) {
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -62,21 +63,18 @@ export function EditTaskBTN() {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button
-            className="w-10 hover:bg-transparent hover:text-black"
-            variant="transparent"
-          >
-            <Pencil />
+          <Button variant="transparent" className="w-full">
+            <Plus className="mr-2 h-4 w-4" /> Add New Task
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Edit Task</DialogTitle>
+            <DialogTitle>Add New Task</DialogTitle>
             <DialogDescription>
               Make changes to your Task here. Click save when you&apos;re done.
             </DialogDescription>
           </DialogHeader>
-          <ProfileForm />
+          <ProfileForm columnid={columnid} open={open} setOpen={setOpen} />
         </DialogContent>
       </Dialog>
     );
@@ -85,29 +83,24 @@ export function EditTaskBTN() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button
-          className="w-10 hover:bg-transparent hover:text-black"
-          variant="transparent"
-        >
-          <Pencil />
-        </Button>
+        <Button variant="transparent">Add New Task</Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">
-          <DrawerTitle>Edit Task</DrawerTitle>
+          <DrawerTitle>Add New Task</DrawerTitle>
           <DrawerDescription>
             Make changes to your Task here. Click save when you&apos;re done.
           </DrawerDescription>
         </DrawerHeader>
-        <ProfileForm className="px-4" />
+        <ProfileForm
+          className="px-4"
+          columnid={columnid}
+          open={open}
+          setOpen={setOpen}
+        />
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
-            <Button
-              variant="transparent"
-              className="hover:bg-transparent hover:text-black"
-            >
-              Cancel
-            </Button>
+            <Button variant="transparent">Cancel</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
@@ -116,9 +109,16 @@ export function EditTaskBTN() {
 }
 
 function ProfileForm({
-  className,
-}: React.ComponentProps<"form"> & { className?: string }) {
-  const [open, setOpen] = React.useState(false);
+  columnid,
+  setOpen,
+}: React.ComponentProps<"form"> & {
+  columnid: string;
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const [opencalender, setOpenCalender] = React.useState(false);
+  const AddnewTaskMutation = useAddnewTask();
+  const { username = "", userID = "" } = useUserDetails() || {};
   const formSchema = z.object({
     Name: z.string().min(2, {
       message: "Name must be at least 2 characters.",
@@ -142,14 +142,56 @@ function ProfileForm({
       DueDate: new Date(),
     },
   });
-
+  const tailwind_colors = [
+    "bg-slate-500",
+    "bg-gray-500",
+    "bg-zinc-500",
+    "bg-neutral-500",
+    "bg-stone-500",
+    "bg-red-500",
+    "bg-orange-500",
+    "bg-amber-500",
+    "bg-yellow-500",
+    "bg-lime-500",
+    "bg-green-500",
+    "bg-emerald-500",
+    "bg-teal-500",
+    "bg-cyan-500",
+    "bg-sky-500",
+    "bg-blue-500",
+    "bg-indigo-500",
+    "bg-violet-500",
+    "bg-purple-500",
+    "bg-fuchsia-500",
+    "bg-pink-500",
+    "bg-rose-500",
+  ];
+  const generaterandomColor = () => {
+    const randomColor =
+      tailwind_colors[Math.floor(Math.random() * tailwind_colors.length)];
+    return randomColor;
+  };
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values, "form values");
+    const task: Task = {
+      id: uuid(),
+      user_id: userID,
+      name: values.Name,
+      status: columnid,
+      due_date: values.DueDate,
+      description: values.Description,
+      tags: values.Tags,
+      created_by: username,
+      time: new Date().toISOString(),
+      color: generaterandomColor(),
+    };
+    AddnewTaskMutation.mutate({ task });
+    form.reset();
+    setOpen(false);
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className={className}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
           name="Name"
@@ -213,7 +255,7 @@ function ProfileForm({
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Due Date</FormLabel>
-              <Popover open={open} onOpenChange={setOpen}>
+              <Popover open={opencalender} onOpenChange={setOpenCalender}>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
@@ -238,7 +280,7 @@ function ProfileForm({
                     selected={field.value}
                     onSelect={(date) => {
                       field.onChange(date);
-                      setOpen(false);
+                      setOpenCalender(false);
                     }}
                     disabled={(date) =>
                       date > new Date() || date < new Date("1900-01-01")
@@ -250,11 +292,7 @@ function ProfileForm({
             </FormItem>
           )}
         />
-        <div className="flex justify-center">
-          <Button className="text-center" type="submit">
-            Update
-          </Button>
-        </div>
+        <Button type="submit">Update</Button>
       </form>
     </Form>
   );

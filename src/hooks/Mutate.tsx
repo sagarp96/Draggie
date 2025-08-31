@@ -53,3 +53,65 @@ export function useAddnewTask() {
     },
   });
 }
+
+export function useDeleteTask() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ taskID }: { taskID: string }) => {
+      const { error } = await supabase
+        .from("taskcard_v2")
+        .delete()
+        .eq("id", taskID);
+      if (error) {
+        throw new Error(error.message);
+      }
+      return { data: "Task Deleted" };
+    },
+    onSuccess: () => {
+      // Invalidate and refetch the the transaction
+      queryClient.invalidateQueries({
+        queryKey: ["getTaskCardsdetails"],
+      });
+    },
+  });
+}
+
+export function EditTask() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      task,
+    }: {
+      task: {
+        id: string;
+        name: string;
+        due_date: Date;
+        description: string;
+        tags: string;
+        time: string;
+      };
+    }) => {
+      const { error } = await supabase
+        .from("taskcard_v2")
+        .update({
+          name: task.name,
+          DueDate: task.due_date.toISOString(),
+          description: task.description,
+          tags: task.tags,
+          time: task.time,
+        })
+        .eq("id", task.id);
+      if (error) {
+        throw new Error(error.message);
+      }
+      return { data: "Task Updated" };
+    },
+    onSuccess: () => {
+      // Invalidate and refetch the the transaction
+      queryClient.invalidateQueries({
+        queryKey: ["getTaskCardsdetails"],
+      });
+    },
+  });
+}
