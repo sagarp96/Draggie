@@ -1,6 +1,6 @@
 import { useDraggable } from "@dnd-kit/core";
 import { Task } from "./types";
-import { Trash2, X } from "lucide-react";
+import { X } from "lucide-react";
 import { EditTaskBTN } from "./Buttons/EditTaskBTN";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";

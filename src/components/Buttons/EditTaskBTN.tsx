@@ -24,7 +24,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { EditTask } from "@/hooks/Mutate";
-import { useTaskCardDetails } from "@/hooks/query";
 import { taskTags } from "@/lib/data/tags";
 import {
   Dialog,
