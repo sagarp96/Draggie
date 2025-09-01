@@ -8,6 +8,8 @@ import * as DndKit from "@dnd-kit/core";
 import { useUpdateTaskStatus } from "@/hooks/Mutate";
 import { useTaskCards } from "@/hooks/query";
 import { useTaskStore } from "@/hooks/store";
+import { supabase } from "@/lib/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Lazy-load sidebar and keep it purely client-side to isolate heavy deps
 const CustomSidebar = dynamic(() => import("./CustomSidebar"), { ssr: false });
@@ -23,11 +25,25 @@ export default function MainboardV2() {
   const { data: taskData } = useTaskCards();
   const { tasks, setTasks } = useTaskStore();
   const updateTaskStatus = useUpdateTaskStatus();
-
+  const queryClient = useQueryClient();
   useEffect(() => {
     if (taskData) setTasks(taskData);
-  }, [taskData, setTasks]);
+    const taskcardV2 = supabase
+      .channel("custom-insert-channel")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "taskcard_v2" },
+        (payload) => {
+          console.log("Change received!", payload);
+          queryClient.invalidateQueries({
+            queryKey: ["getTaskCardsdetails"],
+          });
+        }
+      )
+      .subscribe();
 
+    console.log(taskcardV2);
+  }, [taskData, setTasks, queryClient]);
   const mouseSensor = DndKit.useSensor(DndKit.MouseSensor, {
     activationConstraint: { distance: 10 },
   });
