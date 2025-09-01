@@ -132,7 +132,7 @@
   body {
     @apply bg-background text-foreground;
   }
-  
+
   /* Enhanced touch support for mobile drag and drop */
   .touch-manipulation {
     touch-action: manipulation;
