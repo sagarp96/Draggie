@@ -1,3 +1,4 @@
+"use client";
 import { Column as ColumnType, Task } from "./types";
 import { useDroppable } from "@dnd-kit/core";
 import { TaskCard } from "./tasks";
