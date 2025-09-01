@@ -132,7 +132,7 @@ export const useRealtimeCursors = ({
     return () => {
       channel.unsubscribe();
     };
-  }, []);
+  });
 
   useEffect(() => {
     // Add event listener for mousemove
