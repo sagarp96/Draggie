@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import Navbar from "@/components/Navbar";
 import Providers from "./providers/provider";
+import Navbar from "@/components/Navbar";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -18,6 +18,7 @@ export const metadata: Metadata = {
   title: "Dragie",
   description: "Dragie",
 };
+// const Navbar = dynamic(() => import("@/components/Navbar"), { ssr: false });
 
 export default function RootLayout({
   children,

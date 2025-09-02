@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
@@ -18,11 +17,12 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(data);
 
   if (error) {
+    console.log(error);
     redirect("/error");
   }
 
   revalidatePath("/", "layout");
-  redirect("/Welcomepage");
+  redirect("/Redirect");
 }
 
 export async function signup(formData: FormData) {
@@ -43,9 +43,27 @@ export async function signup(formData: FormData) {
   });
 
   if (error) {
+    console.log(error);
     redirect("/error");
   }
 
   revalidatePath("/", "layout");
-  redirect("/userdashboard");
+  redirect("/Redirect");
+}
+
+export async function logout() {
+  const supabase = await createClient();
+
+  try {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Error signing out:", error);
+      throw error;
+    }
+  } catch (error) {
+    console.error("Error signing out:", error);
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/");
 }

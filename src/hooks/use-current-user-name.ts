@@ -1,21 +1,11 @@
-import { supabase } from "@/lib/supabase/client";
-import { useEffect, useState } from "react";
+import { useUserAuth } from "./useAuth";
 
-export const useCurrentUserName = () => {
-  const [name, setName] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchProfileName = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error(error);
-      }
-
-      setName(data.session?.user.user_metadata.full_name ?? "?");
-    };
-
-    fetchProfileName();
-  }, []);
-
-  return name || "?";
+export const useCurrentUserName = (): string => {
+  const { data: user } = useUserAuth();
+  return (
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name ||
+    user?.email ||
+    "Anonymous"
+  );
 };
