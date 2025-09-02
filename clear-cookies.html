@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Clear Cookies for Draggie</title>
+  </head>
+  <body>
+    <h1>Clear Cookies</h1>
+    <p>This page will clear all cookies for localhost</p>
+    <script>
+      // Clear all cookies for localhost
+      document.cookie.split(";").forEach(function (c) {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+
+      // Clear localStorage and sessionStorage
+      localStorage.clear();
+      sessionStorage.clear();
+
+      alert(
+        "Cookies and storage cleared! Now navigate to http://localhost:3000"
+      );
+    </script>
+  </body>
+</html>
