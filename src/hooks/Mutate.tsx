@@ -4,6 +4,7 @@ import { Task } from "../components/types";
 
 export function useUpdateTaskStatus() {
   return useMutation({
+    mutationKey: ["UpdateTaskStatus"],
     mutationFn: async ({
       taskId,
       status,
@@ -27,6 +28,7 @@ export function useUpdateTaskStatus() {
 export function useAddnewTask() {
   const queryClient = useQueryClient();
   return useMutation({
+    mutationKey: ["AddnewTask"],
     mutationFn: async ({ task }: { task: Task }) => {
       const { error } = await supabase.from("taskcard_v2").insert({
         id: task.id,
@@ -58,6 +60,7 @@ export function useAddnewTask() {
 export function useDeleteTask() {
   const queryClient = useQueryClient();
   return useMutation({
+    mutationKey: ["DeleteTask"],
     mutationFn: async ({ taskID }: { taskID: string }) => {
       const { error } = await supabase
         .from("taskcard_v2")
@@ -81,6 +84,7 @@ export function EditTask() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: ["EditTask"],
     mutationFn: async ({
       task,
     }: {
@@ -113,6 +117,32 @@ export function EditTask() {
       queryClient.invalidateQueries({
         queryKey: ["getTaskCardsdetails"],
       });
+    },
+  });
+}
+
+export function AddUser() {
+  return useMutation({
+    mutationKey: ["AddUser"],
+    mutationFn: async ({
+      id,
+      color,
+      username,
+    }: {
+      id: string;
+      color: string;
+      username: string;
+    }) => {
+      const { error } = await supabase.from("profiles").insert({
+        id: id,
+        username: username,
+        color: color,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return { data: "User Added" };
     },
   });
 }
