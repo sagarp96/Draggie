@@ -3,6 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+// Remove this import - don't use client supabase in server actions
+// import { supabase } from "@/lib/supabase/client";
+
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
@@ -66,4 +69,24 @@ export async function logout() {
 
   revalidatePath("/", "layout");
   redirect("/");
+}
+
+export async function GoogleSignIn() {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+    },
+  });
+
+  if (error) {
+    console.log(error, "Error in Google-Login");
+    redirect("/error");
+  }
+
+  if (data.url) {
+    redirect(data.url);
+  }
 }

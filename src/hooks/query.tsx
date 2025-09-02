@@ -59,7 +59,8 @@ export function CheckUserExist() {
     queryFn: async () => {
       const { data: profiles, error } = await supabase
         .from("profiles")
-        .select("id");
+        .select("id")
+        .eq("id", user?.id);
       if (error) {
         throw new Error(error.message);
       }
