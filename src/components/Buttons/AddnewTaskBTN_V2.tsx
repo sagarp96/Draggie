@@ -55,10 +55,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Getusercolor } from "@/hooks/query";
 export function AddNewTaskBTNV2({ columnid }: { columnid: string }) {
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
-
+  const { userID = "" } = useUserDetails() || {};
+  const { data: usercolor } = Getusercolor(userID);
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
@@ -74,7 +76,12 @@ export function AddNewTaskBTNV2({ columnid }: { columnid: string }) {
               Make changes to your Task here. Click save when you&apos;re done.
             </DialogDescription>
           </DialogHeader>
-          <ProfileForm columnid={columnid} open={open} setOpen={setOpen} />
+          <ProfileForm
+            columnid={columnid}
+            open={open}
+            setOpen={setOpen}
+            usercolor={usercolor}
+          />
         </DialogContent>
       </Dialog>
     );
@@ -97,6 +104,7 @@ export function AddNewTaskBTNV2({ columnid }: { columnid: string }) {
           columnid={columnid}
           open={open}
           setOpen={setOpen}
+          usercolor={usercolor}
         />
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
@@ -111,10 +119,12 @@ export function AddNewTaskBTNV2({ columnid }: { columnid: string }) {
 function ProfileForm({
   columnid,
   setOpen,
+  usercolor,
 }: React.ComponentProps<"form"> & {
   columnid: string;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  usercolor: string;
 }) {
   const [opencalender, setOpenCalender] = React.useState(false);
   const AddnewTaskMutation = useAddnewTask();
@@ -142,35 +152,7 @@ function ProfileForm({
       DueDate: new Date(),
     },
   });
-  const tailwind_colors = [
-    "bg-slate-500",
-    "bg-gray-500",
-    "bg-zinc-500",
-    "bg-neutral-500",
-    "bg-stone-500",
-    "bg-red-500",
-    "bg-orange-500",
-    "bg-amber-500",
-    "bg-yellow-500",
-    "bg-lime-500",
-    "bg-green-500",
-    "bg-emerald-500",
-    "bg-teal-500",
-    "bg-cyan-500",
-    "bg-sky-500",
-    "bg-blue-500",
-    "bg-indigo-500",
-    "bg-violet-500",
-    "bg-purple-500",
-    "bg-fuchsia-500",
-    "bg-pink-500",
-    "bg-rose-500",
-  ];
-  const generaterandomColor = () => {
-    const randomColor =
-      tailwind_colors[Math.floor(Math.random() * tailwind_colors.length)];
-    return randomColor;
-  };
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     const task: Task = {
       id: uuid(),
@@ -182,7 +164,7 @@ function ProfileForm({
       tags: values.Tags,
       created_by: username,
       time: new Date().toISOString(),
-      color: generaterandomColor(),
+      color: usercolor,
     };
     AddnewTaskMutation.mutate({ task });
     form.reset();
