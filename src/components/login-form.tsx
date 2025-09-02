@@ -1,6 +1,5 @@
 "use client";
-
-import { GalleryVerticalEnd } from "lucide-react";
+import { Grip } from "lucide-react";
 import { login, signup } from "@/app/login/actions";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -32,7 +31,7 @@ export function LoginForm({
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded-md">
-              <GalleryVerticalEnd className="size-6" />
+              <Grip className="size-6" />
             </div>
             <h1 className="text-xl font-bold">Welcome to Draggie</h1>
             {openSignup ? (
