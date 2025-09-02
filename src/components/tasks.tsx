@@ -40,10 +40,10 @@ export function TaskCard({ task }: TaskCardProps) {
         </h3>
         <footer className="text-center">
           <p className="text-xs text-neutral-100 dark:text-neutral-300">
-            Created by:Sagar panwar
+            Created by:{task.created_by}
           </p>
           <p className="text-xs text-neutral-100 dark:text-neutral-300">
-            Last Updated:10 hours ago
+            Last Updated:{task.time}
           </p>
         </footer>
         <div className="flex justify-center ">
@@ -105,7 +105,7 @@ export function TaskCard({ task }: TaskCardProps) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className="cursor-grab rounded-lg shadow-sm hover:shadow-md  bg-indigo-500 touch-manipulation select-none h-30 "
+      className={`cursor-grab rounded-lg shadow-sm hover:shadow-md ${task.color} touch-manipulation select-none h-30 w-full`}
       style={style}
       suppressHydrationWarning
     >

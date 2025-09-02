@@ -15,8 +15,11 @@ export default function SidebarToggleBTN({
         fixed right-0 top-1/2 -translate-y-1/2 z-[60]
         bg-black/80 hover:bg-black text-white
         w-10 h-12 flex items-center justify-center
-        rounded-l-md shadow-lg outline-none
-      "
+        rounded-l-md shadow-lg outline-none ring-3 ring-emerald-600 dark:*:ring-emerald-300
+        transition-all duration-300
+        focus:ring-5
+        "
+      title={isOpen ? "Close Sidebar" : "Open Sidebar"}
     >
       <MdKeyboardDoubleArrowLeft
         size={24}

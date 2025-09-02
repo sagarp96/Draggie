@@ -1,7 +1,22 @@
+"use client";
+
 import SidebarToggleBTN from "./Buttons/SidebarToggleBTN";
-import { RealtimeChat } from "@/components/realtime-chat";
-import { RealtimeAvatarStack } from "@/components/realtime-avatar-stack";
+import dynamic from "next/dynamic";
 import { useCurrentUserName } from "@/hooks/use-current-user-name";
+import { useUserAuth } from "@/hooks/useAuth";
+
+const RealtimeChat = dynamic(
+  () => import("@/components/realtime-chat").then((m) => m.RealtimeChat),
+  { ssr: false }
+);
+const RealtimeAvatarStack = dynamic(
+  () =>
+    import("@/components/realtime-avatar-stack").then(
+      (m) => m.RealtimeAvatarStack
+    ),
+  { ssr: false }
+);
+
 export default function CustomSidebar({
   isOpen,
   onClick,
@@ -10,6 +25,9 @@ export default function CustomSidebar({
   onClick: () => void;
   children?: React.ReactNode;
 }) {
+  const { data: user } = useUserAuth();
+  const username = useCurrentUserName();
+
   return (
     <>
       <SidebarToggleBTN onClick={onClick} isOpen={isOpen} />
@@ -37,18 +55,18 @@ export default function CustomSidebar({
         aria-modal="true"
         aria-labelledby="sidebar-title"
       >
-        <header className="flex items-center flex-col gap-2 border-1 m-5 bg-black dark:bg-emerald-900 rounded-full">
+        <header className="flex items-center flex-col gap-2 border-1 m-5 bg-black dark:bg-grey-800 rounded-full">
           <h1>Teammates-Online</h1>
-
-          <RealtimeAvatarStack roomName="break_room" />
+          {user ? <RealtimeAvatarStack roomName="break_room" /> : null}
         </header>
 
-        <div className=" chat flex items-center flex-col gap-2 border-1 m-5 bg-black dark:bg-emerald-900 h-4/5">
+        <div className="chat flex items-center flex-col gap-2 border-1 border-dotted m-5 rounded-2xl bg-black dark:bg-grey-800 h-180 lg:h-4/5 p-2">
           <h2>Chat</h2>
-          <RealtimeChat
-            roomName="my-chat-room"
-            username={useCurrentUserName()}
-          />
+          {user ? (
+            <RealtimeChat roomName="my-chat-room" username={username} />
+          ) : (
+            <div className="text-sm opacity-70">Log in to chat</div>
+          )}
         </div>
 
         <footer className="p-4 border-t border-white/10 text-sm opacity-80"></footer>
