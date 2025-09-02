@@ -38,9 +38,7 @@ export default function Redirectpage() {
       <div className="text-center">
         <h1 className="text-2xl mb-4">Draggie</h1>
         <p className="text-gray-600">
-          {isLoading
-            ? "Checking authentication..."
-            : "Setting up your account..."}
+          {isLoading ? "Checking authentication..." : "Redirecting..."}
         </p>
       </div>
     </div>
