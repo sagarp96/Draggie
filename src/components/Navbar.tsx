@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { useUserAuth } from "@/hooks/useAuth";
-import { logout } from "@/app/login/actions";
 import { useState } from "react";
 
 export default function Navbar() {
@@ -19,10 +18,16 @@ export default function Navbar() {
   const signoutUser = async () => {
     setIsLoggingOut(true);
     try {
-      await logout();
+      // Create a form and submit it to handle logout properly
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = "/auth/logout";
+      form.style.display = "none";
+      document.body.appendChild(form);
+      form.submit();
     } catch (error) {
       console.error("Logout failed:", error);
-      // In case of logout failure, force redirect to home page
+      // Force clear auth state and redirect
       window.location.href = "/";
     } finally {
       setIsLoggingOut(false);

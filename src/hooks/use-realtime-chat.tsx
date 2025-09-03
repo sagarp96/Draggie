@@ -18,140 +18,193 @@ export interface ChatMessage {
 }
 
 const EVENT_MESSAGE_TYPE = "message";
+const MAX_RECONNECT_ATTEMPTS = 5;
+const BASE_RECONNECT_DELAY = 1000; // 1 second
+const MAX_RECONNECT_DELAY = 30000; // 30 seconds
 
 export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isConnected, setIsConnected] = useState(false);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const reconnectAttemptsRef = useRef(0);
-  const maxReconnectAttempts = 3; // Reduced for production
-  const currentChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(
-    null
-  );
-  const isSetupInProgressRef = useRef(false);
+  const [connectionAttempts, setConnectionAttempts] = useState(0);
 
-  const setupChannel = useCallback(() => {
-    // Prevent multiple simultaneous setup attempts
-    if (isSetupInProgressRef.current) {
-      console.log("Channel setup already in progress, skipping");
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitializingRef = useRef(false);
+  const isMountedRef = useRef(true);
+
+  // Calculate exponential backoff delay
+  const getReconnectDelay = useCallback((attempt: number) => {
+    const delay = Math.min(
+      BASE_RECONNECT_DELAY * Math.pow(2, attempt),
+      MAX_RECONNECT_DELAY
+    );
+    // Add some jitter to prevent thundering herd
+    return delay + Math.random() * 1000;
+  }, []);
+
+  // Clean up existing channel
+  const cleanupChannel = useCallback(() => {
+    if (channelRef.current) {
+      try {
+        console.log("Cleaning up existing channel");
+        supabase.removeChannel(channelRef.current);
+      } catch (error) {
+        console.warn("Error cleaning up channel:", error);
+      } finally {
+        channelRef.current = null;
+      }
+    }
+
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+  }, []);
+
+  // Initialize or reconnect to channel
+  const initializeChannel = useCallback(() => {
+    if (isInitializingRef.current || !isMountedRef.current) {
       return;
     }
 
-    isSetupInProgressRef.current = true;
-
-    // Clean up existing channel
-    if (currentChannelRef.current) {
-      try {
-        supabase.removeChannel(currentChannelRef.current);
-      } catch (error) {
-        console.warn("Error removing existing channel:", error);
-      }
-      currentChannelRef.current = null;
-    }
-
-    // Clear any existing reconnect timeout
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-      reconnectTimeoutRef.current = undefined;
-    }
+    isInitializingRef.current = true;
+    cleanupChannel();
 
     try {
-      const newChannel = supabase.channel(`room:${roomName}`, {
+      console.log(
+        `Initializing chat channel for room: ${roomName}, user: ${username}`
+      );
+
+      const channel = supabase.channel(`chat:${roomName}`, {
         config: {
-          broadcast: { self: false }, // Don't receive our own messages
-          presence: { key: username },
+          broadcast: {
+            self: false, // Don't receive our own messages
+            ack: true, // Request acknowledgment
+          },
+          presence: {
+            key: username,
+          },
         },
       });
 
-      newChannel
+      channel
         .on("broadcast", { event: EVENT_MESSAGE_TYPE }, (payload) => {
           console.log("Received message:", payload);
-          if (payload.payload) {
-            setMessages((current) => [
-              ...current,
-              payload.payload as ChatMessage,
-            ]);
+          const message = payload.payload as ChatMessage;
+
+          if (message && isMountedRef.current) {
+            setMessages((current) => {
+              // Prevent duplicate messages
+              const exists = current.some((m) => m.id === message.id);
+              if (exists) return current;
+
+              return [...current, message];
+            });
           }
         })
-        .subscribe(async (status, err) => {
-          console.log("Channel status:", status, err);
+        .subscribe(async (status, error) => {
+          console.log(`Channel subscription status: ${status}`, error);
 
-          isSetupInProgressRef.current = false;
-
-          if (status === "SUBSCRIBED") {
-            setIsConnected(true);
-            reconnectAttemptsRef.current = 0;
-            console.log("Successfully connected to chat channel");
-          } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-            setIsConnected(false);
-            console.error("Channel error:", err);
-
-            // Only attempt reconnection if we haven't exceeded max attempts
-            if (reconnectAttemptsRef.current < maxReconnectAttempts) {
-              const delay = Math.min(
-                Math.pow(2, reconnectAttemptsRef.current) * 1000,
-                10000
-              ); // Cap at 10 seconds
-              console.log(`Will retry connection in ${delay}ms`);
-
-              reconnectTimeoutRef.current = setTimeout(() => {
-                reconnectAttemptsRef.current++;
-                console.log(
-                  `Reconnecting to chat... Attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts}`
-                );
-                setupChannel();
-              }, delay);
-            } else {
-              console.error("Max reconnection attempts reached. Giving up.");
-            }
-          } else if (status === "CLOSED") {
-            setIsConnected(false);
-            console.log("Channel closed");
+          if (!isMountedRef.current) {
+            return;
           }
+
+          switch (status) {
+            case "SUBSCRIBED":
+              setIsConnected(true);
+              setConnectionAttempts(0);
+              console.log("Successfully connected to chat channel");
+              break;
+
+            case "CHANNEL_ERROR":
+            case "TIMED_OUT":
+              setIsConnected(false);
+              console.error(`Channel ${status}:`, error);
+
+              // Attempt reconnection with exponential backoff
+              if (connectionAttempts < MAX_RECONNECT_ATTEMPTS) {
+                const delay = getReconnectDelay(connectionAttempts);
+                console.log(
+                  `Reconnecting in ${delay}ms... (attempt ${
+                    connectionAttempts + 1
+                  }/${MAX_RECONNECT_ATTEMPTS})`
+                );
+
+                reconnectTimeoutRef.current = setTimeout(() => {
+                  if (isMountedRef.current) {
+                    setConnectionAttempts((prev) => prev + 1);
+                    isInitializingRef.current = false;
+                    initializeChannel();
+                  }
+                }, delay);
+              } else {
+                console.error("Max reconnection attempts reached");
+                setConnectionAttempts(0); // Reset for potential future reconnections
+              }
+              break;
+
+            case "CLOSED":
+              setIsConnected(false);
+              console.log("Channel closed");
+              break;
+
+            default:
+              console.log(`Unhandled channel status: ${status}`);
+          }
+
+          isInitializingRef.current = false;
         });
 
-      currentChannelRef.current = newChannel;
+      channelRef.current = channel;
     } catch (error) {
-      console.error("Error setting up channel:", error);
-      isSetupInProgressRef.current = false;
+      console.error("Error initializing channel:", error);
       setIsConnected(false);
+      isInitializingRef.current = false;
+
+      // Retry after a delay if we haven't exceeded max attempts
+      if (connectionAttempts < MAX_RECONNECT_ATTEMPTS) {
+        const delay = getReconnectDelay(connectionAttempts);
+        reconnectTimeoutRef.current = setTimeout(() => {
+          if (isMountedRef.current) {
+            setConnectionAttempts((prev) => prev + 1);
+            initializeChannel();
+          }
+        }, delay);
+      }
     }
-  }, [roomName, username]);
+  }, [
+    roomName,
+    username,
+    connectionAttempts,
+    cleanupChannel,
+    getReconnectDelay,
+  ]);
+
+  // Initialize channel on mount
   useEffect(() => {
-    setupChannel();
+    isMountedRef.current = true;
+    initializeChannel();
 
     return () => {
-      console.log("Cleaning up realtime chat hook");
-      isSetupInProgressRef.current = false;
-
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-        reconnectTimeoutRef.current = undefined;
-      }
-
-      if (currentChannelRef.current) {
-        try {
-          supabase.removeChannel(currentChannelRef.current);
-        } catch (error) {
-          console.warn("Error during channel cleanup:", error);
-        }
-        currentChannelRef.current = null;
-      }
-
-      setIsConnected(false);
+      isMountedRef.current = false;
+      isInitializingRef.current = false;
+      cleanupChannel();
     };
-  }, [setupChannel]);
+  }, [initializeChannel, cleanupChannel]);
 
+  // Send message function
   const sendMessage = useCallback(
-    async (content: string) => {
-      if (!currentChannelRef.current || !isConnected) {
-        console.warn("Cannot send message: channel not connected");
+    async (content: string): Promise<boolean> => {
+      if (!channelRef.current || !isConnected || !content.trim()) {
+        console.warn(
+          "Cannot send message: channel not connected or content empty"
+        );
         return false;
       }
 
       const message: ChatMessage = {
         id: crypto.randomUUID(),
-        content,
+        content: content.trim(),
         user: {
           name: username,
         },
@@ -159,20 +212,26 @@ export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
       };
 
       try {
-        // Send message to channel first
-        const result = await currentChannelRef.current.send({
+        // Send to channel first
+        const result = await channelRef.current.send({
           type: "broadcast",
           event: EVENT_MESSAGE_TYPE,
           payload: message,
         });
 
         if (result === "ok") {
-          // Update local state after successful send
-          setMessages((current) => [...current, message]);
+          // Add to local state optimistically
+          setMessages((current) => {
+            // Prevent duplicates
+            const exists = current.some((m) => m.id === message.id);
+            if (exists) return current;
+
+            return [...current, message];
+          });
           console.log("Message sent successfully");
           return true;
         } else {
-          console.error("Failed to send message:", result);
+          console.error("Failed to send message, result:", result);
           return false;
         }
       } catch (error) {
@@ -183,5 +242,18 @@ export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
     [isConnected, username]
   );
 
-  return { messages, sendMessage, isConnected };
+  // Manual reconnect function
+  const reconnect = useCallback(() => {
+    console.log("Manual reconnect requested");
+    setConnectionAttempts(0);
+    initializeChannel();
+  }, [initializeChannel]);
+
+  return {
+    messages,
+    sendMessage,
+    isConnected,
+    reconnect,
+    connectionAttempts,
+  };
 }

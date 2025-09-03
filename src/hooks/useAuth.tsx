@@ -28,9 +28,16 @@ export function useUserAuth() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed:", event, session?.user?.email);
-      // Invalidate and refetch immediately when auth state changes
-      queryClient.invalidateQueries({ queryKey: ["userSession"] });
-      queryClient.refetchQueries({ queryKey: ["userSession"] });
+
+      if (event === "SIGNED_OUT") {
+        // Clear all auth-related data immediately on sign out
+        queryClient.setQueryData(["userSession"], null);
+        queryClient.removeQueries({ queryKey: ["userSession"] });
+      } else {
+        // For other events, invalidate and refetch
+        queryClient.invalidateQueries({ queryKey: ["userSession"] });
+        queryClient.refetchQueries({ queryKey: ["userSession"] });
+      }
     });
 
     return () => subscription.unsubscribe();

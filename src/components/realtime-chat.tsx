@@ -36,6 +36,8 @@ export const RealtimeChat = ({
     messages: realtimeMessages,
     sendMessage,
     isConnected,
+    reconnect,
+    connectionAttempts,
   } = useRealtimeChat({
     roomName,
     username,
@@ -70,12 +72,21 @@ export const RealtimeChat = ({
   }, [allMessages, scrollToBottom]);
 
   const handleSendMessage = useCallback(
-    (e: React.FormEvent) => {
+    async (e: React.FormEvent) => {
       e.preventDefault();
-      if (!newMessage.trim() || !isConnected) return;
+      if (!newMessage.trim()) return;
 
-      sendMessage(newMessage);
-      setNewMessage("");
+      if (!isConnected) {
+        console.warn("Cannot send message: not connected to chat");
+        return;
+      }
+
+      const success = await sendMessage(newMessage);
+      if (success) {
+        setNewMessage("");
+      } else {
+        console.error("Failed to send message");
+      }
     },
     [newMessage, isConnected, sendMessage]
   );
@@ -85,18 +96,35 @@ export const RealtimeChat = ({
       {/* Connection Status */}
       <div className="flex items-center justify-between p-2 border-b border-border">
         <span className="text-sm font-medium">Chat</span>
-        <div
-          className={cn("flex items-center gap-1 text-xs", {
-            "text-green-500": isConnected,
-            "text-red-500": !isConnected,
-          })}
-        >
-          {isConnected ? (
-            <Wifi className="size-3" />
-          ) : (
-            <WifiOff className="size-3" />
+        <div className="flex items-center gap-2">
+          <div
+            className={cn("flex items-center gap-1 text-xs", {
+              "text-green-500": isConnected,
+              "text-yellow-500": !isConnected && connectionAttempts > 0,
+              "text-red-500": !isConnected && connectionAttempts === 0,
+            })}
+          >
+            {isConnected ? (
+              <Wifi className="size-3" />
+            ) : (
+              <WifiOff className="size-3" />
+            )}
+            {isConnected
+              ? "Connected"
+              : connectionAttempts > 0
+              ? `Reconnecting... (${connectionAttempts})`
+              : "Disconnected"}
+          </div>
+          {!isConnected && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={reconnect}
+              className="h-6 px-2 text-xs"
+            >
+              Retry
+            </Button>
           )}
-          {isConnected ? "Connected" : "Disconnected"}
         </div>
       </div>
 
@@ -141,7 +169,13 @@ export const RealtimeChat = ({
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          placeholder={isConnected ? "Type a message..." : "Connecting..."}
+          placeholder={
+            isConnected
+              ? "Type a message..."
+              : connectionAttempts > 0
+              ? "Reconnecting..."
+              : "Disconnected - click retry to reconnect"
+          }
           disabled={!isConnected}
         />
         {isConnected && newMessage.trim() && (
