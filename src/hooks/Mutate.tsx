@@ -142,7 +142,7 @@ export function AddUser() {
       if (error) {
         throw new Error(error.message);
       }
-      return { data: "User Added" };
+      return { data: { id, username, color } };
     },
   });
 }
