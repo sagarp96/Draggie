@@ -37,7 +37,12 @@ export async function middleware(request: NextRequest) {
   ].join("; ");
 
   res.headers.set("Content-Security-Policy", csp);
-  if (isProd) res.headers.set("x-nonce", nonce); // nonce only needed in prod
+  if (isProd) {
+    // Required for Next.js to add nonce to all its inline scripts/styles
+    res.headers.set("x-nextjs-nonce", nonce);
+    // Optional: keep for your own use (e.g., useNonce + <Script nonce={...}>)
+    res.headers.set("x-nonce", nonce);
+  }
 
   return res;
 }
