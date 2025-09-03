@@ -22,6 +22,8 @@ export default function Navbar() {
       await logout();
     } catch (error) {
       console.error("Logout failed:", error);
+      // In case of logout failure, force redirect to home page
+      window.location.href = "/";
     } finally {
       setIsLoggingOut(false);
     }

@@ -10,7 +10,19 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey, {
   realtime: {
     params: {
-      eventsPerSecond: 10,
+      eventsPerSecond: 2, // Reduced for production stability
+    },
+    heartbeatIntervalMs: 30000, // 30 seconds
+    reconnectAfterMs: (tries: number) => Math.min(tries * 1000, 10000), // Max 10 seconds
+  },
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+  global: {
+    headers: {
+      "x-client-info": "draggie-web-app",
     },
   },
 });

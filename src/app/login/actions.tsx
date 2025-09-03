@@ -58,15 +58,41 @@ export async function logout() {
   const supabase = await createClient();
 
   try {
-    const { error } = await supabase.auth.signOut();
+    // First get the current session to check if user is logged in
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      console.log("No active session found, redirecting to home");
+      revalidatePath("/", "layout");
+      redirect("/");
+      return;
+    }
+
+    // Attempt to sign out
+    const { error } = await supabase.auth.signOut({
+      scope: "local", // Only sign out from this client
+    });
+
     if (error) {
       console.error("Error signing out:", error);
-      throw error;
+      // Don't throw error in production, just log it and continue with redirect
+      if (process.env.NODE_ENV === "development") {
+        throw error;
+      }
+    } else {
+      console.log("Successfully signed out");
     }
   } catch (error) {
-    console.error("Error signing out:", error);
+    console.error("Logout error:", error);
+    // In production, continue with redirect even if logout fails
+    if (process.env.NODE_ENV === "development") {
+      throw error;
+    }
   }
 
+  // Always revalidate and redirect, even if logout had issues
   revalidatePath("/", "layout");
   redirect("/");
 }
