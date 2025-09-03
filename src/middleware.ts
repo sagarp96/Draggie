@@ -40,7 +40,7 @@ export async function middleware(request: NextRequest) {
     "script-src-attr 'none'",
     `style-src ${styleSrc}`,
     `connect-src ${connectSrc}`,
-    `img-src 'self' data: blob: https://${supabaseHost}`,
+    `img-src 'self' data: blob: https://${supabaseHost} https://*.googleusercontent.com https://lh3.googleusercontent.com`,
     "font-src 'self' data:",
     "frame-ancestors 'self'",
     "base-uri 'self'",

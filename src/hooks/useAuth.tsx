@@ -26,10 +26,11 @@ export function useUserAuth() {
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      console.log("Auth state changed:", event);
-      // Invalidate the userSession query when auth state changes
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, session?.user?.email);
+      // Invalidate and refetch immediately when auth state changes
       queryClient.invalidateQueries({ queryKey: ["userSession"] });
+      queryClient.refetchQueries({ queryKey: ["userSession"] });
     });
 
     return () => subscription.unsubscribe();
@@ -40,8 +41,14 @@ export function useUserAuth() {
     queryFn: getUserSession,
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
-    refetchOnMount: true,
+    refetchOnMount: true, // Override the default for this specific query
     refetchOnReconnect: true,
     retry: 1,
+    // Add initial data to prevent flash of unauthenticated state
+    initialData: null,
+    // Make sure we get immediate updates
+    refetchInterval: false,
+    // Enable background updates when needed
+    refetchIntervalInBackground: false,
   });
 }

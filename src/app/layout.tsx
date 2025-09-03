@@ -1,49 +1,37 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import { headers } from "next/headers";
-import { ThemeProvider } from "@/components/theme-provider";
 import Providers from "./providers/provider";
+import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/Navbar";
+import { Suspense } from "react";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Dragie",
-  description: "Dragie",
+  title: "Draggie",
+  description: "A collaborative task management application",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const hdrs = await headers();
-  const nonce = hdrs.get("x-nextjs-nonce") ?? hdrs.get("x-nonce") ?? undefined;
-
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={inter.className}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-          nonce={nonce}
         >
           <Providers>
-            <Navbar />
-            {children}
+            <Suspense fallback={<div>Loading...</div>}>
+              <Navbar />
+              {children}
+            </Suspense>
           </Providers>
         </ThemeProvider>
       </body>
