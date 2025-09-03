@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { headers } from "next/headers";
 import { ThemeProvider } from "@/components/theme-provider";
 import Providers from "./providers/provider";
 import Navbar from "@/components/Navbar";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -18,13 +20,15 @@ export const metadata: Metadata = {
   title: "Dragie",
   description: "Dragie",
 };
-// const Navbar = dynamic(() => import("@/components/Navbar"), { ssr: false });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const hdrs = await headers();
+  const nonce = hdrs.get("x-nextjs-nonce") ?? hdrs.get("x-nonce") ?? undefined;
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -35,6 +39,7 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
+          nonce={nonce}
         >
           <Providers>
             <Navbar />
