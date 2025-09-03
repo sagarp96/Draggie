@@ -13,7 +13,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useUserAuth } from "@/hooks/useAuth";
 import { useCurrentUserName } from "@/hooks/use-current-user-name";
 
-// Lazy client chunks to avoid server bundling issues
 const CustomSidebar = dynamic(() => import("./CustomSidebar"), { ssr: false });
 const RealtimeCursors = dynamic(
   () => import("@/components/realtime-cursors").then((m) => m.RealtimeCursors),

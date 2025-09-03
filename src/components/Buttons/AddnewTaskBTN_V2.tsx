@@ -183,9 +183,7 @@ function ProfileForm({
               <FormControl>
                 <Input placeholder="Name" {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
+              <FormDescription>Name of the task</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -199,9 +197,7 @@ function ProfileForm({
               <FormControl>
                 <Input placeholder="Description" {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
+              <FormDescription>Description of the task</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -250,7 +246,7 @@ function ProfileForm({
                       {field.value ? (
                         format(field.value, "PPP")
                       ) : (
-                        <span>Pick a date</span>
+                        <span>Pick a due date</span>
                       )}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
@@ -274,7 +270,9 @@ function ProfileForm({
             </FormItem>
           )}
         />
-        <Button type="submit">Update</Button>
+        <div className="flex justify-center">
+          <Button type="submit">Add Task</Button>
+        </div>
       </form>
     </Form>
   );
