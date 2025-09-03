@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 
 import { useUserAuth } from "@/hooks/useAuth";
 import { useState } from "react";
+import { supabase } from "@/lib/supabase/client";
 
 export default function Navbar() {
   const { data: user, isLoading } = useUserAuth() || {};
@@ -18,20 +19,22 @@ export default function Navbar() {
   const signoutUser = async () => {
     setIsLoggingOut(true);
     try {
-      // Create a form and submit it to handle logout properly
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = "/auth/logout";
-      form.style.display = "none";
-      document.body.appendChild(form);
-      form.submit();
+      // Use client-side Supabase logout which works better on Vercel
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error("Supabase logout error:", error);
+        // Continue with redirect even if there's an error
+      }
+
+      // Force a full page reload to clear all state and redirect to home
+      window.location.href = "/";
     } catch (error) {
       console.error("Logout failed:", error);
-      // Force clear auth state and redirect
-      window.location.href = "/login";
-    } finally {
-      setIsLoggingOut(false);
+      // Force redirect as fallback
+      window.location.href = "/";
     }
+    // Don't set isLoggingOut to false since we're redirecting
   };
 
   const renderUserAvatar = () => {
