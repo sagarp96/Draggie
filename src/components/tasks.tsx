@@ -26,7 +26,17 @@ export function TaskCard({ task }: TaskCardProps) {
     : undefined;
 
   const [openTaskCard, setOpenTaskCard] = useState(false);
-
+  const formatDate = (iso?: string) => {
+    if (!iso) return "Unknown";
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    const day = d.getDate();
+    const month = d.getMonth() + 1;
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+    return `Created at - ${day}/${month}/${year} at ${hours}:${minutes}`;
+  };
   const TaskOverview = () => {
     return (
       <motion.div
@@ -40,10 +50,10 @@ export function TaskCard({ task }: TaskCardProps) {
         </h3>
         <footer className="text-center">
           <p className="text-xs text-neutral-100 dark:text-neutral-300">
-            Created by:{task.created_by}
+            {formatDate(task.time)}
           </p>
           <p className="text-xs text-neutral-100 dark:text-neutral-300">
-            Last Updated:{task.time}
+            Due Date: {task.DueDate}
           </p>
         </footer>
         <div className="flex justify-center ">
