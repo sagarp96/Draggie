@@ -28,7 +28,7 @@ export default function Navbar() {
     } catch (error) {
       console.error("Logout failed:", error);
       // Force clear auth state and redirect
-      window.location.href = "/";
+      window.location.href = "/login";
     } finally {
       setIsLoggingOut(false);
     }
