@@ -60,7 +60,7 @@ export default function CustomSidebar({
           {user ? <RealtimeAvatarStack roomName="break_room" /> : null}
         </header>
 
-        <div className="chat flex items-center flex-col gap-2 border-1 border-dotted m-5 rounded-2xl bg-black dark:bg-grey-800 h-180 lg:h-4/5 p-2">
+        <div className="chat flex items-center flex-col gap-2 border-1 border-dotted m-5 rounded-2xl bg-black dark:bg-grey-800 h-120 lg:h-4/5 p-2">
           <h2>Chat</h2>
           {user ? (
             <RealtimeChat roomName="my-chat-room" username={username} />
