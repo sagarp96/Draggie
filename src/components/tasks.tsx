@@ -35,7 +35,7 @@ export function TaskCard({ task }: TaskCardProps) {
     const year = d.getFullYear();
     const hours = String(d.getHours()).padStart(2, "0");
     const minutes = String(d.getMinutes()).padStart(2, "0");
-    return `Created at - ${day}/${month}/${year} at ${hours}:${minutes}`;
+    return `${day}/${month}/${year} at ${hours}:${minutes}`;
   };
   const TaskOverview = () => {
     return (
@@ -50,10 +50,10 @@ export function TaskCard({ task }: TaskCardProps) {
         </h3>
         <footer className="text-center">
           <p className="text-xs text-neutral-100 dark:text-neutral-300">
-            {formatDate(task.time)}
+            Created At:{formatDate(task.time)}
           </p>
           <p className="text-xs text-neutral-100 dark:text-neutral-300">
-            Due Date: {task.DueDate}
+            Due Date: {task.DueDate.toString()}
           </p>
         </footer>
         <div className="flex justify-center ">
@@ -91,7 +91,7 @@ export function TaskCard({ task }: TaskCardProps) {
           </p>
           <p className="text-xs text-neutral-100 dark:text-neutral-300">
             Time:
-            <span className="text-neutral-50">{task.time}</span>
+            <span className="text-neutral-50"> {formatDate(task.time)}</span>
           </p>
           <p className="text-xs text-neutral-100 dark:text-neutral-300">
             Tags:

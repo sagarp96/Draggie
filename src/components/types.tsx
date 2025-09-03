@@ -5,7 +5,7 @@ export type Task = {
   user_id: string;
   name: string;
   status: string;
-  due_date: Date;
+  DueDate: Date;
   description: string;
   tags: string;
   created_by: string;

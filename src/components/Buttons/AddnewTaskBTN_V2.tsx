@@ -159,7 +159,7 @@ function ProfileForm({
       user_id: userID,
       name: values.Name,
       status: columnid,
-      due_date: values.DueDate,
+      DueDate: values.DueDate,
       description: values.Description,
       tags: values.Tags,
       created_by: username,

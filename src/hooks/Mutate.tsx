@@ -35,7 +35,7 @@ export function useAddnewTask() {
         user_id: task.user_id,
         name: task.name,
         status: task.status,
-        DueDate: task.due_date,
+        DueDate: task.DueDate,
         description: task.description,
         tags: task.tags,
         created_by: task.created_by,
