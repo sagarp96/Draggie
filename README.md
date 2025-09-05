@@ -3,10 +3,7 @@
 A realtime, collaborative kanban-style project management app with live cursors, chat, instant drag & drop updates, per-user task colors, and dark/light themes.
 
 <p align="center">
-  <video controls playsinline muted loop style="width:100%; height:auto;">
-    <source src="public/DemoPhotos/RealtimeUpdates-DemoVideo.mp4" type="video/mp4" />
-    Your browser does not support the video tag.
-  </video>
+  <img src="public/DemoPhotos/RealtimeUpdates.gif" alt="Instant Drag and Drop Realtime Updates" width="85%" />
 </p>
 
 ## Highlights
