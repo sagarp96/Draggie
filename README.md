@@ -76,6 +76,7 @@ Comfortable viewing day or night with seamless theme switching.
 - Supabase Realtime
 - Tailwind CSS + shadcn/ui
 - DnD Kit
+- Framer
 - Zustand + React Query
 - date-fns
 
