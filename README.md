@@ -4,7 +4,7 @@ A realtime, collaborative kanban-style project management app with live cursors,
 
 <p align="center">
   <video controls playsinline muted loop style="width:100%; height:auto;">
-    <source src="public/DemoPhotos/Drag and DRop.gif" type="video/mp4" />
+    <source src="public/DemoPhotos/RealtimeUpdates-DemoVideo.mp4" type="video/mp4" />
     Your browser does not support the video tag.
   </video>
 </p>
@@ -27,10 +27,9 @@ A realtime, collaborative kanban-style project management app with live cursors,
 
 See where teammates are and what they’re focusing on—instantly.
 
-  <video controls playsinline muted loop style="width:100%; height:auto;">
-    <source src="public/DemoPhotos/Drag and DRop.gif" type="video/mp4" />
-    Your browser does not support the video tag.
-  </video>
+<p align="center">
+  <img src="public/DemoPhotos/MultiCurser.png" alt="Instant Drag and Drop Realtime Updates" width="85%" />
+</p>
 
 ### Instant Drag & Drop Updates
 
